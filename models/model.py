@@ -187,7 +187,10 @@ class Final_Model(nn.Module):
 
         mask = mask[:, 0:1].reshape(neis.shape[0], -1, 1).repeat(1, 1, neis.shape[2]).view(neis.shape[0], -1).unsqueeze(1).repeat(1, nei_embeddings.shape[1], 1)  # (512, 1, 9) -> (512, 9, 1) -> (512, 9, 18) -> (512, 162) -> (512, 162, 1) -> (512, 162, 162)
         mask_traj = torch.tril(torch.ones((1, ped.shape[1], ped.shape[1]))).repeat(neis.shape[0], neis.shape[1], neis.shape[1]).to(device=neis.device)  # (512, 162, 162)
-        mask = mask * mask_traj  # (512, 162, 162)
+        if 'nba' in self.dataset_name:
+            mask = mask_traj  # 没有social mask
+        else:
+            mask = mask * mask_traj  # (512, 162, 162)
         int_feat = self.social_decoder(
             nei_embeddings, nei_embeddings, mask
         )  # [B K embed_size]  (512, 112, 128)

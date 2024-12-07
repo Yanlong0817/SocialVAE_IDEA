@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument("--ckpt", type=str, default=None)
     parser.add_argument("--device", type=str, default=None)
     parser.add_argument("--gpu", type=int, default=0)
-    parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--seed", type=int, default=717)
     parser.add_argument("--no-fpc", action="store_true", default=False)
     parser.add_argument("--fpc-finetune", action="store_true", default=False)
 

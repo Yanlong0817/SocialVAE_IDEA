@@ -113,16 +113,18 @@ class Final_Model(nn.Module):
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
-        if dataset_name == "sdd_img":
-            self.image_model, preprocess = clip.load("ViT-L/14")
-            for param in self.image_model.parameters():
-                param.requires_grad = False
-        elif dataset_name == "sdd" or dataset_name == "sdd_world":
-            self.image_model = None
-        else:
+        # if dataset_name == "sdd_img":
+        #     self.image_model, preprocess = clip.load("ViT-L/14")
+        #     for param in self.image_model.parameters():
+        #         param.requires_grad = False
+        # elif dataset_name == "sdd" or dataset_name == "sdd_world":
+        #     self.image_model = None
+        if self.dataset_name in ['eth', 'hotel', 'zara01', 'zara02', 'univ']:
             model, preprocess = clip.load("ViT-L/14")
             image = self.transform(Image.open(f"scene/{dataset_name}.jpg")).unsqueeze(0).cuda()
             self.img_feat = model.encode_image(image).to(dtype=torch.float32).detach()
+        else:
+            pass
 
         self.img_encoder = nn.Linear(768, n_embd)
 
@@ -238,16 +240,11 @@ class Final_Model(nn.Module):
         past_state = self.traj_encoder(traj_norm)
 
         # 融合场景信息
-        if "sdd" not in self.dataset_name:
+        if self.dataset_name in ['eth', 'hotel', 'zara01', 'zara02', 'univ']:
             img_feat = self.img_encoder(self.img_feat).unsqueeze(1)
             final_img_feat = repeat(img_feat, "() n d -> b n d", b=neis.shape[0])
-        elif self.dataset_name == "sdd" or self.dataset_name == "sdd_world":
-            final_img_feat = torch.zeros(neis.shape[0], 1, self.n_embd).to(device=traj_norm.device)
         else:
-            scene = scene.to(device=traj_norm.device)
-            img_feat = self.image_model.encode_image(scene).to(dtype=torch.float32).detach()
-            img_feat = self.img_encoder(img_feat).unsqueeze(1)
-            final_img_feat = img_feat
+            final_img_feat = torch.zeros(neis.shape[0], 1, self.n_embd).to(device=traj_norm.device)
 
         # 提取社会交互信息
         int_feat = self.spatial_interaction(
@@ -311,16 +308,16 @@ class Final_Model(nn.Module):
         past_state = self.traj_encoder(traj_norm)  # (513, 20, 128)
 
         # 融合场景信息
-        if "sdd" not in self.dataset_name:
+        if self.dataset_name in ['eth', 'hotel', 'zara01', 'zara02', 'univ']:
             img_feat = self.img_encoder(self.img_feat).unsqueeze(1)
             final_img_feat = repeat(img_feat, "() n d -> b n d", b=neis.shape[0])
-        elif self.dataset_name == "sdd" or self.dataset_name == "sdd_world":
-            final_img_feat = torch.zeros(neis.shape[0], 1, self.n_embd).to(device=traj_norm.device)
         else:
-            scene = scene.to(device=traj_norm.device)
-            img_feat = self.image_model.encode_image(scene).to(dtype=torch.float32)
-            img_feat = self.img_encoder(img_feat).unsqueeze(1).detach()
-            final_img_feat = img_feat
+            final_img_feat = torch.zeros(neis.shape[0], 1, self.n_embd).to(device=traj_norm.device)
+        # else:
+        #     scene = scene.to(device=traj_norm.device)
+        #     img_feat = self.image_model.encode_image(scene).to(dtype=torch.float32)
+        #     img_feat = self.img_encoder(img_feat).unsqueeze(1).detach()
+        #     final_img_feat = img_feat
 
         # 提取社会交互信息
         int_feat = self.spatial_interaction(past_state[:, :self.past_len], neis[:, :, :self.past_len], mask)  # (512, 8, 128)

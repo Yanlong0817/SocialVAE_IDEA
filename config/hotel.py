@@ -5,12 +5,12 @@ PRED_HORIZON = 12  # number of prediction frames
 # group name of inclusive agents; leave empty to include all agents
 # non-inclusive agents will appear as neighbors only
 INCLUSIVE_GROUPS = []
-RNN_HIDDEN_DIM = 256
 
 # training
-LEARNING_RATE = 7e-4
+LEARNING_RATE = 0.0015
+LEARNING_RATE_MIN = 1e-5
 BATCH_SIZE = 512
-EPOCHS = 800  # total number of epochs for training
+EPOCHS = 1000  # total number of epochs for training
 EPOCH_BATCHES = 100  # number of batches per epoch, None for data_length//batch_size
 TEST_SINCE = 1  # the epoch after which performing testing during training
 

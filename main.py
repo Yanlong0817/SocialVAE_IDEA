@@ -126,6 +126,8 @@ if __name__ == "__main__":
         seed=settings.seed,
     )
     train_data, test_data = None, None
+
+    # 测试数据
     if settings.test:
         print(settings.test)
         if config.INCLUSIVE_GROUPS is not None:
@@ -146,7 +148,7 @@ if __name__ == "__main__":
             batch_sampler=test_dataset.batch_sampler,
         )
 
-
+    # 训练数据
     if settings.train:
         print(settings.train)
         if config.INCLUSIVE_GROUPS is not None:
@@ -191,6 +193,9 @@ if __name__ == "__main__":
     )
     model.to(settings.device)
     optimizer = torch.optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=config.EPOCHS, eta_min=config.LEARNING_RATE_MIN
+        )
     start_epoch = 0
     if settings.ckpt:
         ckpt = os.path.join(settings.ckpt, "ckpt-last")
@@ -262,6 +267,8 @@ if __name__ == "__main__":
                 )
             )
             train_loss = 0
+
+            # 训练模型
             for batch, (ped, neis, mask, initial_pos, scene) in  enumerate(train_data):
                 ped, neis, mask, initial_pos = (
                     ped.to(settings.device),
@@ -313,6 +320,7 @@ if __name__ == "__main__":
             rng_state = get_rng_state(settings.device)
             print()
 
+        scheduler.step()
         ###############################################################################
         #####                                                                    ######
         ##### test                                                               ######
@@ -365,31 +373,3 @@ if __name__ == "__main__":
                 "\r\033[K Best ADE: {:.4f}; Best FDE: {:.4f}".format(ade_best, fde_best)
             )
             print()
-
-    if settings.fpc_finetune or losses is not None:
-        # FPC finetune if it is specified or after training
-        precision = 2
-        trunc = lambda v: np.trunc(v * 10**precision) / 10**precision
-        ade_, fde_, fpc_ = [], [], []
-        for fpc in config.FPC_SEARCH_RANGE:
-            ade, fde = test(model, fpc)
-            ade_.append(trunc(ade.item()))
-            fde_.append(trunc(fde.item()))
-            fpc_.append(fpc)
-        i = np.argmin(np.add(ade_, fde_))
-        ade, fde, fpc = ade_[i], fde_[i], fpc_[i]
-        if settings.ckpt:
-            ckpt_best = os.path.join(settings.ckpt, "ckpt-best")
-            if os.path.exists(ckpt_best):
-                state_dict = torch.load(ckpt_best, map_location=settings.device)
-                state_dict["ade_fpc"] = ade
-                state_dict["fde_fpc"] = fde
-                state_dict["fpc"] = fpc
-                torch.save(state_dict, ckpt_best)
-        print(
-            " ADE: {:.2f}; FDE: {:.2f} ({})".format(
-                ade,
-                fde,
-                "FPC: {}".format(fpc) if fpc > 1 else "w/o FPC",
-            )
-        )

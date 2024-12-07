@@ -20,7 +20,7 @@ FPC_SEARCH_RANGE = range(40, 50)  # FPC sampling rate
 
 # 自己添加
 ROTATION = True
-USE_AUGMENTATION = False
+USE_AUGMENTATION = True
 DIST_THRESHOLD = 5
 DATASET_NAME = "sdd"
 N_EMBD = 128

@@ -160,6 +160,7 @@ if __name__ == "__main__":
             **kwargs,
             inclusive_groups=inclusive,
             rotation=config.ROTATION,
+            use_augmentation=config.USE_AUGMENTATION,
             batch_size=config.BATCH_SIZE,
             shuffle=True,
             # batches_per_epoch=config.EPOCH_BATCHES

@@ -9,7 +9,7 @@
             "args": [
                 "--train", "data/eth/train",
                 "--test", "data/eth/test",
-                "--ckpt", "log_eth",
+                "--ckpt", "log/log_eth",
                 "--config", "config/eth.py"
             ]
         },
@@ -21,7 +21,7 @@
             "args": [
                 "--train", "data/hotel/train",
                 "--test", "data/hotel/test",
-                "--ckpt", "log_hotel",
+                "--ckpt", "log/log_hotel",
                 "--config", "config/hotel.py"
             ]
         },
@@ -33,7 +33,7 @@
             "args": [
                 "--train", "data/univ/train",
                 "--test", "data/univ/test",
-                "--ckpt", "log_univ",
+                "--ckpt", "log/log_univ",
                 "--config", "config/univ.py"
             ]
         },
@@ -45,7 +45,7 @@
             "args": [
                 "--train", "data/zara01/train",
                 "--test", "data/zara01/test",
-                "--ckpt", "log_zara01",
+                "--ckpt", "log/log_zara01",
                 "--config", "config/zara01.py"
             ]
         },
@@ -57,7 +57,7 @@
             "args": [
                 "--train", "data/zara02/train",
                 "--test", "data/zara02/test",
-                "--ckpt", "log_zara02",
+                "--ckpt", "log/log_zara02",
                 "--config", "config/zara02.py"
             ]
         },
@@ -69,8 +69,8 @@
             "args": [
                 "--train", "data/sdd/train",
                 "--test", "data/sdd/test",
-                "--ckpt", "log_sdd",
-                "--config", "config/sdd.py"
+                "--ckpt", "log/log_sdd",
+                "--config", "config/sdd_pixel.py"
             ]
         },
         {
@@ -81,7 +81,7 @@
             "args": [
                 "--train", "data/nba/rebound/train",
                 "--test", "data/nba/rebound/test",
-                "--ckpt", "log_rebound",
+                "--ckpt", "log/log_rebound",
                 "--config", "config/nba_rebound.py"
             ]
         },
@@ -93,7 +93,7 @@
             "args": [
                 "--train", "data/nba/score/train",
                 "--test", "data/nba/score/test",
-                "--ckpt", "log_score",
+                "--ckpt", "log/log_score",
                 "--config", "config/nba_score.py"
             ]
         }

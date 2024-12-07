@@ -56,7 +56,7 @@ To reproduce the reported results, please run
     $ python main.py --train data/zara02/train --test data/zara02/test --ckpt log/log_zara02 --config config/zara02.py
 
     # SDD benchmark
-    $ python main.py --train data/sdd/train --test data/sdd/test --ckpt log/log_sdd --config config/sdd.py
+    $ python main.py --train data/sdd/train --test data/sdd/test --ckpt log/log_sdd --config config/sdd_pixel.py
 
     # NBA benchmark
     $ python main.py --train data/nba/rebound/train --test data/nba/rebound/test --ckpt log/log_rebound --config config/nba_rebound.py

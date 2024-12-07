@@ -55,6 +55,7 @@ class Dataloader(torch.utils.data.Dataset):
         device: Optional[torch.device] = None,
         rotation: bool = False,
         dist_threshold: int = 2,
+        use_augmentation: bool = False,
     ):
         super().__init__()
         self.ob_horizon = ob_horizon
@@ -113,9 +114,30 @@ class Dataloader(torch.utils.data.Dataset):
                 sys.stdout.write(
                     "\r\033[K Loading data files...{}/{} ".format(done, len(data_files))
                 )
+        # 模仿PPT扩充数据集
+        raw_len = len(data)
+        if use_augmentation:
+            for i in range(raw_len):
+                traj = data[i]
+
+                # 旋转
+                ks = [1, 2, 3]
+                for k in ks:
+                    traj_rot = []
+                    traj_rot.append(self.rot(traj[0][:, :2], k))
+                    traj_rot.append(self.rot(traj[1], k))
+                    traj_rot.append(self.rot(traj[2][:, :, :2], k))
+                    data.append(tuple(traj_rot))
+
+                # 水平翻转
+                traj_flip = []
+                traj_flip.append(self.fliplr(traj[0][:, :2]))
+                traj_flip.append(self.fliplr(traj[1]))
+                traj_flip.append(self.fliplr(traj[2][:, :, :2]))
+                data.append(tuple(traj_flip))
         self.data = np.array(data, dtype=object)
         del data
-        print("\n   {} trajectories loaded.".format(len(self.data)))
+        print("\n   {} trajectories loaded.".format(raw_len))
 
         self.rng = np.random.RandomState()
         if seed:
@@ -135,6 +157,36 @@ class Dataloader(torch.utils.data.Dataset):
                 batches_per_epoch, sampler, batch_size, drop_last
             )
             self.batches_per_epoch = batches_per_epoch
+
+    @staticmethod
+    def rot(data, k=1):
+        """
+        Rotates image and coordinates counter-clockwise by k * 90° within image origin
+        :param df: Pandas DataFrame with at least columns 'x' and 'y'
+        :param image: PIL Image
+        :param k: Number of times to rotate by 90°
+        :return: Rotated Dataframe and image
+        """
+        data_ = data.copy()
+
+        c, s = np.cos(-k * np.pi / 2), np.sin(-k * np.pi / 2)
+        R = np.array([[c, s], [-s, c]])  # 旋转矩阵
+        data_ = np.dot(data_, R)  # 旋转数据
+        return data_
+
+    @staticmethod
+    def fliplr(data):
+        """
+        Flip image and coordinates horizontally
+        :param df: Pandas DataFrame with at least columns 'x' and 'y'
+        :param image: PIL Image
+        :return: Flipped Dataframe and image
+        """
+        data_ = data.copy()
+        R = np.array([[-1, 0], [0, 1]])
+        data_ = np.dot(data_, R)
+
+        return data_
 
     def coll_fn(self, scenario_list):
         # batch <list> [[ped, neis]]]
